@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script type='text/javascript' src='scriptfiles/jquery-3.3.1.min.js'> </script>
+<script type='text/javascript' src='scriptfiles/general.js'> </script>
+<title>Execution</title>
+</head>
+<body>
+
+<header>
+<input type="button" value="RETURN TO OPERATIONS MENU" onclick="location.replace('operations.html')">
+<input type="button" value="HELP">
+</header>
+
+<section>
+<h1>OPERATION: <span id="operation"></span></h1>
+
+<p id="waiting"> waiting for completion </p>
+
+<!-- <h1 id="detail"></h1> -->
+
+<ul id="parameters">  </ul>
+
+<!-- <progress max="100" value="25">
+loaded  <span id="value">25</span> % of photos
+</progress>
+ -->
+ 
+ <h1> Protocol of execution </h1>
+ 
+ <h1 id="empty" hidden=true > IS EMPTY </h1>
+ 
+ <ol id="protocol"> </ol>
+ 
+ </section>
+ 
+ <script>
+ //
+ $(document).ready(function($){
+				$.get('Operations', {command : "operation"}, function(answer,status) {
+					var answerObject=onAnswer(answer,status);
+					$('#operation').html(answerObject.operation);
+					if (answerObject.command=="prompt")
+						{ parameters=stringToArray(answerObject.parameters);
+						// reading uses parameter values from additional panel prompt" 
+						var values=arrayFromPrompts(parameters);
+						stringArrayToUnorderedList("parameters",values,parameters);
+						var  valuesforserver=arrayToString(values);
+						// var detail=prompt(answerObject.request,"","for execution");
+						// sending values to server and receiving protocol back
+					$.get('Operations', {command: "protocol", parameters: valuesforserver}, 
+							function(answer,status) {
+						console.log("answer handling");
+						var answerObject=onAnswer(answer,status);
+						// $('#detail').html(answerObject.detail);
+						// var protocol=JSON.parse(answerObject.protocol);
+						var protocol=stringToArray(answerObject.protocol);
+						$('#waiting').html("");
+						showProtocol(protocol); }); // End of the interrior get
+						}
+					else {
+						$.get('Operations', {command : "protocol"}, function(answer,status) {
+							var answerObject=onAnswer(answer,status);
+							console.log("answerObject.protocol = "+answerObject.protocol);
+							console.log("answerObject.protocol.length = "+answerObject.protocol.length);
+							// var protocol=JSON.parse(answerObject.protocol);
+							// var protocol=answerObject.protocol.split(',');
+							var protocol=stringToArray(answerObject.protocol);
+							$('#waiting').html("");
+							showProtocol(protocol); }); // End of the interrior get
+					}
+				}); // End of the external get
+ });	// End of ready
+
+ 
+
+		
+		var showProtocol = function(protocol) {
+			if (protocol.length == 0)
+				$('#empty')[0].hidden = false;
+			console.log("protocol.length = " + protocol.length);
+			for (var m = 0; m < protocol.length; m++) {
+				var NLI = document.createElement('li');
+				NLI.innerHTML = protocol[m];
+				document.getElementById('protocol').appendChild(NLI);
+			} // End of for
+		} // End of showProtocol
+
+		var arrayFromPrompts = function(components) {
+			var array = new Array();
+			for (var m = 0; m < components.length; m++)
+				array[m] = prompt(components[m], "", "for execution");
+			return array;
+		} // End of arrayFromPrompts
+	</script> 
+ 
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<!-- <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'> -->
+
+<link rel='stylesheet' type='text/css' media=all href='cssfiles/welcome.css'>
+<script type='text/javascript' src='scriptfiles/jquery-3.3.1.min.js'> </script>
+
+<title>Registration in photos classifier</title>
+
+</head>
+<body>
+
+<p> Enter the data necessary to use photos classifier </p>
+<p> Login  <input id="login"  type=text value=""> </p>
+<p> Password  <input id="password" type=password  value=""> </p>
+<p> Language  <input id="language" type=text value=""> </p>
+
+<p>  <input type=button name=submit value="REMEMBER" onclick="sendToServer()">
+<input  	type="button" name='submit' value="EXIT" onclick="location.replace('welcome.html')"> 
+</p>
+<script>
+var sendToServer=function(){
+	var message={
+			"page" : "registration",
+			"login" : $('#login')[0].value,
+			"password" : $('#password')[0].value,
+			"language" : $('#language')[0].value
+		    };
+
+	var literal = {
+			data : JSON.stringify(message)
+		};
+
+	$.post('Welcome',literal, function(answer,status){
+		console.log("status="+status);
+		console.log("answer= "+answer);
+		// $('#message').html("Enter not empty login");
+       location.replace("sources.html");
+		// location.reload(true);
+	});
+}
+</script>
+
+</body>
+</html>

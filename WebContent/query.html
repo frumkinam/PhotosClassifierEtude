@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- <meta charset="UTF-8"> -->
+<title>Query description</title>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+
+<script type='text/javascript' src='scriptfiles/jquery-3.3.1.min.js'> </script>
+<script type='text/javascript' src='scriptfiles/general.js'> </script> 
+
+<style type="text/css">
+/*   * { margin: 10; padding: 10; }
+           p { padding: 10px; } */
+#option {
+	background-color: SkyBlue;
+}
+
+#tags {
+	float: left;
+	width: 200px;
+	background-color: magenta;
+}
+
+#list {
+	/* left: 450px;  top: 30px; */
+	margin-left: 350px;
+	width: 400px;
+	background-color: yellow;
+}
+
+.normal {
+	background-color: chartreuse;
+	/* color: chartreuse; */
+}
+
+.alarm {
+	/* color: DeepPink; */
+	background-color: DeepPink;
+}
+
+td {
+	background: white;
+	text-align: center;
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+<input type="button" value="APPLY" onclick="sendQuery()">
+<input type="button" value="RETURN TO OPERATIONS MENU" onclick="location.replace('operations.html')">
+<input type="button" name='submit' value='EXIT' onclick="location.replace('welcome.html')">
+<input type="button" value="HELP">
+</header>
+
+<section>
+<div id="dateinterval">
+<br>
+<p> Define the required interval of dates </p>
+ <p> from: year <input type="text" id="startyear"  list="years" value="">
+month <input type="text" id='startmonth' list="months" value="">
+day <input type="text" id="startday" list="days" value="">  </p>
+
+ <p>   to: year <input type="text" id='finishyear' list="years" value="">
+month <input type="text" id='finishmonth' list="months" value="">
+day <input type="text" id='finishday'   list="days" value="">  </p>
+
+<datalist id="years">
+    <option>2000</option>
+    <option>2001</option>
+    <option>2002</option>
+    <option>2003</option>
+    <option>2004</option>
+    <option>2005</option>
+    <option>2006</option>
+    <option>2007</option>
+    <option>2008</option>
+    <option>2009</option>
+    <option>2010</option>
+    <option>2011</option>
+    <option>2012</option> 
+    <option>2013</option>
+    <option>2014</option>
+    <option>2015</option>
+    <option>2016</option>
+    <option>2017</option>  
+    <option>2018</option>    
+ </datalist>
+
+<datalist id="months">
+    <option>1</option>
+    <option>2</option>
+    <option>3</option>
+    <option>4</option>
+    <option>5</option>
+    <option>6</option>
+    <option>7</option>
+    <option>8</option>
+    <option>9</option>
+    <option>10</option>
+    <option>11</option>
+    <option>12</option> 
+ </datalist>
+
+
+<datalist id="days">
+    <option>1</option>
+    <option>2</option>
+    <option>3</option>
+    <option>4</option>
+    <option>5</option>
+    <option>6</option>
+    <option>7</option>
+    <option>8</option>
+    <option>9</option>
+    <option>10</option>
+    <option>11</option>
+    <option>12</option> 
+    <option>13</option>
+    <option>14</option>
+    <option>15</option>
+    <option>16</option>
+    <option>17</option>  
+    <option>18</option> 
+    <option>19</option>  
+    <option>20</option>   
+    <option>21</option>
+    <option>22</option>
+    <option>23</option>
+    <option>24</option>
+    <option>25</option>
+    <option>26</option>
+    <option>27</option>
+    <option>28</option>
+    <option>29</option>
+    <option>30</option>
+    <option>31</option>
+ </datalist>
+
+</div>
+
+<br>
+
+<div id="option">
+ <input type="button"  id="all"   value="Select all" onclick="selectAll()">  
+ <input type="button" id="withouttags"   value="Select all photos without tags" onclick="withoutTags()"> 
+  <input type="button"  id="bytags"   value="Select photos by tags" onclick="byTags()" > 
+</div>
+
+
+<br>
+
+<div id="bytags"> 
+
+<div id="tags">
+<p> Tags option </p>
+<ul id="tagsList">
+
+</ul>
+</div>
+
+<div id="list">
+	<table id="queryList"  border=1 bordercolor=red>
+		<caption>Tags used for sample of photos</caption>
+		<col width=300px>
+		<col width= 50px>
+		<col width= 50px>
+		<thead>
+		 <th> Tag name </th>
+		  <th> Using </th>
+		   <th> Delete </th>
+		</thead>
+    	<tbody id="queryTags">
+		</tbody>
+	</table>
+
+</div>
+
+</div>
+
+</section>
+	
+      
+<script>
+var command="";
+
+	$.get('Operations', {
+		command : "querytags"
+	}, function(answer, status) {
+		/* console.log("status=" + status);
+		console.log("data= " + data); */
+		var tags = new Array();
+		var answerObject = JSON.parse(answer);
+		if (answerObject.tags !== "") {
+			tags = JSON.parse(answerObject.tags);
+			for (var m = 0; m < tags.length; m++) {
+				var NLI = document.createElement('li');
+				// console.log("at the beginning id ="+ tags[m].id); 
+				NLI.innerHTML = "<input type='button'  name='" + tags[m].id
+						+ "' title='" + tags[m].description + "' value='"
+						+ tags[m].name + "'onclick='addTag(this)' > ";
+				document.getElementById('tagsList').appendChild(NLI);
+				// console.log(NLI.innerHTML); 
+			} // End of for
+		} // End of if
+	});
+
+	
+	
+	var addTag=function(node){
+		// var table = document.getElementById("queryList");
+		var tr = document.createElement('tr');
+		tr.class="tagRow";
+		// ----
+		var td = document.createElement('td');
+		    td.innerHTML=node.value;
+		    tr.appendChild(td);  
+		// ----
+		td = document.createElement('td');
+		var txt = document.createElement('input');
+		txt.type = "button";
+		txt.value ="include";
+		txt.name = "using";
+		//txt.class="normal";
+		// $(txt).CSS('background-color','red');
+		txt.style ="background-color: chartreuse";
+		txt.setAttribute("onclick","invertUsing(this)");
+		td.appendChild(txt);
+		tr.appendChild(td);
+		// ----
+		td = document.createElement('td');
+		button = document.createElement('input');
+		button.type = "button";
+		button.value = "delete";
+		button.setAttribute("onclick", "this.parentNode.parentNode.remove()");
+		// alert(button.onclick);
+		td.appendChild(button);
+		tr.appendChild(td);
+		 var str=$('table tr')[0].firstChild.html;
+		 var l=$('table tr').length;
+		 // console.log("Number of rows = "+l);
+		 var ch=$('table tr')[l-1].children;
+		 var ln=ch.length;
+		// console.log(ln);
+		 // console.log (ch[0].innerHTML);
+		 insertTag(tr);
+		 // $('table tr')[1].before(tr);
+		 // console.log($('.tagRow').html);
+		// $('.tagRow')[0].firstChilg.after("<tr> <td> aa </td>   <td> bb </td> <td> cc </td> </tr> ");
+		//$(table).eq(0).after("<tr> <td> aa </td>   <td> bb </td> <td> cc </td> </tr> ");
+		// table.hidden=false;
+		// numberOfSourses++;
+	} // End of addSource
+	
+	var insertTag=function(node){
+		// var tableRows= $('table tr');
+		tableRows= $('#queryTags tr');
+		var name=node.children[0].innerHTML;
+		if(tableRows.length==0) {$('#queryTags').append(node); return; };
+		for (var m = 0; m < tableRows.length; m++) {
+			var tablename= tableRows[m].children[0].innerHTML; //"zzz"; //
+			if (name < tablename) {
+				tableRows[m].before(node);
+				return;
+			}
+			if (name ==tablename) {
+				alert("The tag with name '" + name + "' already exists");
+				return;
+			}
+		}
+		tableRows[tableRows.length-1].after(node);
+	} // End of insertTag
+	
+	// Double works !!!!
+/* 	var insertTag=function(node){
+		var tableRows= $('table tr');
+		// tableRows= $('#queryTags').children;
+		var name=node.children[0].innerHTML;
+		for (var m = 1; m < tableRows.length; m++) {
+			var tablename=tableRows[m].children[0].innerHTML;
+			if (name < tablename) {
+				tableRows[m].before(node);
+				return;
+			}
+			if (name ==tablename) {
+				alert("The tag with name '" + name + "' already exists");
+				return;
+			}
+		}
+		tableRows[tableRows.length-1].after(node);
+	} // End of insertTag */
+	
+	
+	
+	
+	var invertUsing=function(node)
+	{ if (node.value=="include")
+		{ node.value="exclude";
+		// node.class="alarm";
+		node.style="background-color: HotPink";
+		  // node.class="alarm";
+		}
+	else 
+	{ node.value="include";
+	node.style="background-color: chartreuse";
+	  //node.class="normal";
+	}	
+	} // End of invertUsing
+	
+	
+	var selectAll=function()
+	{ if (command=="all")
+		{ command="";
+		$('#all')[0].style="background-color: AliceBlue";
+		  // node.class="alarm";
+		}
+	else 
+	{ command="all";
+	$('#all')[0].style="background-color: HotPink";
+	$('#withouttags')[0].style="background-color: AliceBlue";
+	$('#bytags')[0].style="background-color: AliceBlue";
+	  //node.class="normal";
+	}	
+	} // End of selectAll Gainsboro Ivory
+	
+	
+	var withoutTags=function()
+	{ if (command=="withouttags")
+		{ command="";
+		$('#withouttags')[0].style="background-color: AliceBlue";
+		  // node.class="alarm";
+		}
+	else 
+	{ command="withouttags";
+	$('#withouttags')[0].style="background-color: HotPink";
+	$('#all')[0].style="background-color: AliceBlue";
+	$('#bytags')[0].style="background-color: AliceBlue";
+	  //node.class="normal";
+	}	
+	} // End of selectAll Gainsboro Ivory
+	
+	
+	var byTags=function()
+	{ if (command=="bytags")
+		{ command="";
+		$('#bytags')[0].style="background-color: AliceBlue";
+		  // node.class="alarm";
+		}
+	else 
+	{ command="bytags";
+	$('#bytags')[0].style="background-color: HotPink";
+	$('#all')[0].style="background-color: AliceBlue";
+	$('#withouttags')[0].style="background-color: AliceBlue";
+	  //node.class="normal";
+	}	
+	} // End of selectAll Gainsboro Ivory
+	
+	
+	var formDate=function(year,month,day)
+	{ if((year=="") || (month=="") || (day==""))
+		return null;
+	   if (month.length==1) month="0"+month;
+	   if (day.length==1) day="0"+day;
+	    return year + ":" + month + ":" + day;
+		// return new Date(year,month,day);
+	}
+	
+	var sendQuery=function(){
+		// temporary !!!
+		var date=formDate("1969","01","01");
+		console.log("minDate = "+date);
+		// var date= formDate($('#startyear')[0].value,$('#startmonth')[0].value,$('#startday')[0].value);
+		if (date==null){
+			alert("fill all fields in the start date for sample");
+			return;
+		}
+		// console.log("start date = "+date);
+		var start=date;
+		// var start=JSON.stringify(date);
+		// console.log("start date json = "+start);
+		// temporary !!!
+		 date=formDate("2019","12","31");
+		 // date= formDate($('#finishyear')[0].value,$('#finishmonth')[0].value,$('#finishday')[0].value);
+		if (date==null){
+			alert("fill all fields in the finish date for sample");
+			return;
+		}
+		// console.log("finish date = "+date);
+		var finish=date;
+		// console.log("finish date json = "+finish);
+		
+		if (command==""){
+			alert("choose the type of selection");
+			return;
+		}
+	
+		if ((command=="all") || (command=="withouttags"))  
+			{  	$.get('Operations',{command: command, startdate: start, finishdate: finish},
+					function(answer, status) {
+				// console.log("status=" + status);
+				 // console.log("data= " + answer);
+				 onAnswer(answer, status);
+				 });
+					// 'onAnswer(answer,status)');
+			} 
+		else { var tagsJson=tagsForServer();
+		 console.log("tagsJson= " + tagsJson);  
+		$.post('Operations',{command: command, startdate: start, finishdate: finish, tags: tagsJson},
+				function(answer, status) {
+			 //console.log("status=" + status);
+			 // console.log("data= " + answer);
+			 onAnswer(answer, status);
+			 });
+			
+		} // End of else
+			
+	} // End of sendQuery
+	
+	/* function(answer, status) {
+		 console.log("status=" + status);
+		 console.log("data= " + data);
+		 onAnswer(answer, status);
+		 }
+	 */
+	
+	
+	/*  var onAnswer=function(answer,status){
+		 if (status !="success")
+			 { alert("the mistakes appeared while data transmitting!")
+			 return;
+			 }
+		 console.log("status=" + status);
+		 console.log("data= " + answer); 
+		 var answerObject = JSON.parse(answer);
+			switch (answerObject.command) {
+			case "continue":
+				break;
+			case "newpage":
+				console.log("newpage =" + answerObject.newpage);
+				location.replace(answerObject.newpage);
+				break;
+			} // End of switch
+		 
+	 } // End of onAnswer */ 
+	
+	/* var onAnswer=function(answer,status,failurePage){
+		 console.log("status=" + status);
+		 console.log("data= " + answer); 
+	 } */
+	
+	var tagsForServer=function(){
+		 var list = queryTags.children;
+			var tags = new Array();
+			for (var m = 0; m < list.length; m++) {
+				var name=list[m].children[0].innerHTML;
+				// console.log("m = " + m + ",  name = " + name);
+				var element = {
+					"id" : getId(name),
+					"using" : list[m].children[1].firstChild.value,
+									}
+				tags.push(element);
+			}
+		 return  JSON.stringify(tags);
+		 } // End of tagsForServer
+	 
+	 var getId=function(name){
+		 var list=tagsList.children;
+		 for (var m = 0; m < list.length; m++) 
+			 { // console.log("list[m] =" + list[m].innerHTML);
+			 // console.log("id =" + list[m].firstChild.name);
+			 // console.log("value =" + list[m].value); 
+			 // console.log("title =" + list[m].title); 
+			 }
+		 for (var m = 0; m < list.length; m++) 
+			 if (name==list[m].firstChild.value) return list[m].firstChild.name;
+		 return "";
+		 } // End of getId
+	
+	
+</script>	         
+         
+	    
+</body>
+</html>
+
+
+
+
+
+
+

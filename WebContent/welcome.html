@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel='stylesheet' type='text/css' media=all href='cssfiles/welcome.css'>
+<script type='text/javascript' src='scriptfiles/jquery-3.3.1.min.js'> </script>
+<title>Photos classifier entrance </title>
+</head>
+<body>
+<p id="message"> Enter your private data to enter the photo classifier </p>
+<p> Login  <input id="login" name="vasa" type="text"  value=""> </p>
+<p> Password  <input id="password" type="password"  value="">  </p>
+<br> 
+<p><input type=button name=submit value="ENTER" onclick="sendToServer()"> 
+<input type=button  name=submit value="REGISTRATE" onclick="goToRegistration()"> </p>
+
+<script>
+var sendToServer=function(){
+	var message = {
+			"page" : "welcome",
+			"login" : $('#login')[0].value,
+			"password" : $('#password')[0].value
+		};
+
+	var literal = {
+			data : JSON.stringify(message)
+		};
+
+	$.post('Welcome', literal, function(answer, status) {
+			var answerObject=JSON.parse(answer);
+			switch (answerObject.command){
+			case "repeat": $('#message').html(answerObject.data); break;
+			case "newpage": console.log("new page ="+answerObject.data); 
+			                location.replace(answerObject.data); break;
+			}
+			//answerObject.data
+			// console.log("status="+status);
+			// console.log("data= "+data);
+			// $('#message').html("Enter not empty login");
+
+			// location.reload(true);
+		});
+	}
+
+	var goToRegistration = function() {
+		//location.replace("http://localhost:8080/StudyJquery/registration.html");
+		location.replace("registration.html");
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- <meta charset="UTF-8"> -->
+<title>Sources setting</title>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+
+<script type='text/javascript' src='scriptfiles/jquery-3.3.1.min.js'> </script>
+<script type='text/javascript' src='scriptfiles/sources.js'> </script>
+<script type='text/javascript' src='scriptfiles/general.js'> </script>
+
+ <style type="text/css">    
+           
+           #sourcesList { width: 700px;   }
+          /*  #right { left: 450px; top: 30px; width: 400px; background-color: yellow;}  */
+        </style>	
+
+
+</head>
+<body>
+ <h3 id="login">   </h3> 
+
+
+	         
+<input type="button"  value='SAVE SOURCES' onclick="save()">
+<input type="button"  name='submit' value='OPERATIONS'  onclick="location.replace('operations.html')">
+<input type="button" name='submit' value='EXIT' onclick="location.replace('welcome.html')"> 
+<input type="button"  name=help value=HELP>
+<!-- <input type=submit  name='submit' value='REGISTRATION CHANGES' onclick=remember('registration')> -->
+
+<br>
+<br>
+
+	<table id=sourcesList hidden=true border=1 bordercolor=red>
+		<caption>The sources of photos</caption>
+		<col width=650px>
+		<col width=50px>
+    	<tbody>
+		</tbody>
+	</table>
+
+	<br>
+
+	<table border=1 bordercolor=red>
+		<caption>The new source</caption>
+		<col width=650px>
+		<col width=50px>
+		<tbody>
+			<tr>
+				<td><input type='text' id="newSource" style= "width: 650px;" value=''> </td>
+				<td><input id="sourceAdd" type="button" value="add source" onclick="addTableRow('sourcesList','newSource')"> </td>
+			</tr>
+		</tbody>
+	</table>
+
+
+	
+      
+<script>
+//  $(document).ready(function($){
+     var numberOfSourses=0;
+
+	$.get('SetSources', " ", function(answer, status) {
+		var sources = new Array();
+		var answerObject = JSON.parse(answer);
+		$('#login').html("User: " + answerObject.login);
+		if (answerObject.sources !== "") {
+			sources = answerObject.sources.split(',');
+
+			for (var m = 0; m < sources.length; m++)
+				addSource(sources[m]);
+
+			// $('#sourcesList')[0].hidden = false;
+			console.log("hidden");
+		}
+
+		console.log("length= " + sources.length);
+		for (var m = 0; m < sources.length; m++)
+			console.log("sources[" + m + "]= " + sources[m]);
+		var login = sessionStorage.getItem("login");
+	});
+
+	
+	
+	var addSource = function(path) {
+		var table = document.getElementById("sourcesList");
+		var tr = document.createElement('tr');
+		// ----
+		var td = document.createElement('td');
+		var txt = document.createElement('input');
+		txt.style="width: 650px;";
+		txt.type = "text";
+		txt.value = path;
+		txt.name = "source";
+		// txt.disabled=true;
+		td.appendChild(txt);
+		tr.appendChild(td);
+		// ----
+		td = document.createElement('td');
+		button = document.createElement('input');
+		button.type = "button";
+		button.value = "delete";
+		button.setAttribute("onclick", "deleteTableRow('sourcesList',this)");
+		// alert(button.onclick);
+		td.appendChild(button);
+		tr.appendChild(td);
+		table.appendChild(tr);
+		table.hidden=false;
+		numberOfSourses++;
+	} // End of addSource
+	
+
+	var save = function() {
+	// var sourcesInputs=$("name='source'");
+	var sourcesInputs=document.getElementsByName('source');
+	console.log("sourcesInputsLength="+sourcesInputs.length);
+	var sourcesArray=new Array();
+	for (var m = 0; m < sourcesInputs.length; m++)
+		{ sourcesArray[m]=sourcesInputs[m].value;
+		console.log("sourcesArray [" + m +"]= "+sourcesArray[m]); };
+		 
+	var sources=arrayToString(sourcesArray);
+	console.log("sourses= "+sources);
+	
+	// message = {"command" : "execute",  "sources" : sources};
+
+	// var literal={ forServer: JSON.stringify(message) };
+
+	$.post('SetSources',{"command" : "execute",  "sources" : sources}, function(data,status){
+		// console.log("status="+status);
+		// console.log("data= "+data);
+		onAnswer(data,status);
+		// location.reload(true);
+	});
+	} // End of save
+	
+	
+	var arrayToString=function(array) {
+		var result ="";
+		var N = array.length;
+		for (var m = 0; m < N - 1; m++)
+			result += array[m]+ ", ";
+		if (N > 0)
+			result += array[N-1];
+		return result;
+	} // End of arrayToString
+	
+</script>	         
+  
+  
+        
+	    
+</body>
+</html>
+
+
+
+
+
+
+<!-- //var sessionValue = '<%= Session["login"] %>';
+// login= $.session.get("login");
+//alert(login1);
+//var login=${sessionScope.login};
+//var login=localStorage.getItem("login");
+// $('#login').html("User: "+login);
+//$('#login').html("User: "+"Vasya");
+ // });
+ -->

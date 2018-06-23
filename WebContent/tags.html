@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script type='text/javascript' src='scriptfiles/jquery-3.3.1.min.js'> </script>  
+ <title>Editing tags</title>
+<style type="text/css">
+* {
+	margin: 10;
+	padding: 10;
+}
+
+p {
+	padding: 10px;
+}
+
+#left {
+	left: 0;
+	top: 30px;
+	width: 400px;
+	background-color: magenta;
+	float: left;
+	text-align: center;
+}
+
+#right {
+	margin-left:350px;
+	top: 30px;
+	width: 600px;
+	background-color: yellow;
+	text-align: center;
+}
+</style>
+</head>
+
+<!-- position:  absolute; -->
+
+<body>
+
+<header>
+<input type="button" value="SAVE CHANGES" onclick='saveChanges()'>
+<input type="button" value="RETURN TO OPERATIONS MENU" onclick="location.replace('operations.html')"">
+<input type="button" name='submit' value='EXIT' onclick="location.replace('welcome.html')">
+<input type="button" value="HELP">
+<br>
+</header>
+
+<section>
+<div id="left" border=1 bordercolor=green> 
+<ul id="tagsList">
+</ul>
+</div>
+
+<div id="right"> 
+<h1> New tag and description </h1>
+<input id="newname" type='text' style="width: 200px" value="">  
+<input id="newdescription" type='text' style="width: 300px" value="">
+<input type='button' value='add' style="width: 50px" onclick="addTag()">
+</div>
+</section>
+
+<script>
+$.get('SetTags', " ", function(answer, status) {
+	var tags = new Array();
+	var answerObject = JSON.parse(answer);
+	if (answerObject.tags !== "") {
+		tags=JSON.parse(answerObject.tags);
+		for (var m = 0; m < tags.length;m++) {
+			var NLI=document.createElement('li');
+			var nameString="<input type='text'  name='"+ tags[m].id  + "' title='" + tags[m].id + "' value='" + tags[m].name + "'> ";
+			var descriptionString="<input type='text'  name="+ tags[m].id  + " title=" +  tags[m].id + " value='" + tags[m].description + "'> ";
+			var buttonString="<input type='button' value='delete' onclick='this.parentNode.remove()'>";
+			 NLI.innerHTML=nameString+descriptionString+buttonString;  
+			 document.getElementById('tagsList').appendChild(NLI);
+			 console.log(descriptionString);
+			 //console.log(tags[m].description); 
+				} // End of for
+	} // End of if
+});
+
+
+
+	var addTag = function() {
+		var name = $('#newname')[0].value;
+		var description = $('#newdescription')[0].value;
+		var NLI = document.createElement('li');
+
+		var nameString = "<input type='text'  name='new' title='new'  value='" + name + "'> ";
+		var descriptionString = "<input type='text'   name='new' title='new' value='" + description + "'> ";
+		// var textString="<input type='text'  name='new' title=" + description + " value=" + name + "> ";
+		var buttonString = "<input type='button' value='delete' onclick='this.parentNode.remove()'>";
+		NLI.innerHTML = nameString + descriptionString + buttonString;
+		var list = tagsList.children;
+		for (var m = 0; m < list.length; m++) {
+			if (name < list[m].firstChild.value) {
+				tagsList.insertBefore(NLI, tagsList.children[m]);
+				return;
+			}
+			if (name == list[m].firstChild.value) {
+				alert("The tag with name '" + name + "' already exists");
+				return;
+			}
+		}
+		// alert(list[1].firstChild.value);
+		document.getElementById('tagsList').appendChild(NLI);
+		// tagList.appendChild(NLI); does not work! 
+	} // End of addTag
+
+	/* var list=$('#tagList');
+	 console.log(list[0].value); does not work! */
+
+	var saveChanges = function() {
+		var list = tagsList.children;
+		var tags = new Array();
+		for (var m = 0; m < list.length; m++) {
+			// console.log("description="+list[m].childNodes[2].value);
+			// What is child with number 1 ?
+			var element = {
+				"id" : list[m].firstChild.name,
+				"name" : list[m].firstChild.value,
+				"description" : list[m].childNodes[2].value
+			};
+			tags.push(element);
+		}
+		var tagsString = JSON.stringify(tags);
+		var message = {
+			"action" : "save",
+			"tags" : tagsString
+		};
+
+		var literal = {
+			forServer : JSON.stringify(message)
+		};
+
+		$.post('SetTags', literal, function(data, status) {
+			console.log("status=" + status);
+			console.log("data= " + data);
+
+			// location.reload(true);
+		});
+
+	}
+</script>
+
+</body>
+</html>

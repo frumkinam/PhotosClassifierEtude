@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script type='text/javascript' src='scriptfiles/jquery-3.3.1.min.js'> </script>
+<script type='text/javascript' src='scriptfiles/general.js'> </script>
+<title>Marking photos</title>
+</head>
+<body>
+
+	<script type='text/javascript' src='scriptfiles/jquery-3.3.1.min.js'> 
+	</script>
+
+	
+	<style type="text/css">
+* {
+	margin: 0;
+	padding: 0;
+}
+
+p {
+	padding: 10px;
+}
+
+#alltags {
+	/* position: absolute; 
+	left: 0;
+	top: 10%;
+	width: 40%;
+	*/
+	float: left;
+	width:200px;
+	background-color: magenta;
+	text-align: center;
+}
+
+#tag {
+margin: 20px 20px 20px 20x;
+/* margin-top:30px;
+margin-bottom:30px; */
+ }
+
+
+
+#tags {
+	float: left;
+	width:300px;
+	background-color: yellow;
+	text-align: center;
+}
+
+#photo {
+	/* position: absolute;
+	right: 0;
+	top: 10%;
+	width: 60%; 
+	float: left; */
+	margin-left:500px;
+	width: 500px;
+}
+
+figure {
+	text-align: center;
+}
+</style>
+</head>
+<body>
+	<header>
+		<input type="button" value="HELP">
+		<input type="button" value="STOP" onclick="window.clearInterval(timer)">
+		<input type="button" value="CONTINUE" onclick="timer = window.setInterval('changePhoto()',2000)">
+		<input type="button" value="SAVE PHOTO TAGS" onclick="savePhotoTags()">
+		<input type="button" value="NEW SAMPLE OF PHOTOS" onclick="location.replace('query.html')">
+		<input type="button" value="RETURN TO OPERATIONS MENU" onclick="location.replace('operations.html')">
+	</header>
+		<br>
+		<br>
+			<section>
+				<div id="alltags">
+				 <h1> All tags list</h1>
+				<ul id="tagsList"> </ul>
+				</div>
+				
+						
+				<div id="tags">
+	<table border=1 bordercolor=red>
+		<caption>Tags of photo</caption>
+		<col width=150px>
+		<col width= 50px>
+		<thead>
+		 <th> Tag name </th>
+		 <th> Delete </th>
+		</thead>
+    	<tbody id="photoTags">
+    	</tbody>
+	</table>
+
+</div>
+			
+				<div id="photo">
+
+					<figure>
+						<img id="picture" src="" alt="Picture"
+							style="left: 100px; top: 300px" width="400">
+						<figcaption>Photo name</figcaption>
+					</figure>
+
+				</div>
+			</section>
+
+			<script>
+	
+				var photoCount = 0;
+				var currentPhotoid;
+				var timer;
+				var photos;
+				var tags;
+				var relation;
+				
+ $(document).ready(function($){
+				$.get('Marking', {command : "formarking"}, function(answer,status) {
+					var answerObject=onAnswer(answer,status);
+					
+					photos = JSON.parse(answerObject.photos);
+					if (photos.length==0){
+						alert("The sample of photos is empty");
+						location.replace("query.html");
+					}
+					console.log("photos.length ="+ photos.length); 
+					tags = JSON.parse(answerObject.tags);
+					for (var m = 0; m < tags.length; m++) {
+						var NLI = document.createElement('li');
+						// console.log("at the beginning id ="+ tags[m].id); 
+						NLI.innerHTML = "<input type='button' style='margin: 20px 20px 20px 20x;' id='" + tags[m].id
+								+ "' title='" + tags[m].description + "' value='"
+								+ tags[m].name + "'onclick='setTag(this)' > ";
+						document.getElementById('tagsList').appendChild(NLI);				
+										}
+					
+					relation=JSON.parse(answerObject.relation);
+						timer = window.setInterval("changePhoto()",3000);
+						
+				});
+ });	
+				
+
+				var setTag=function(node){
+					addTag(node);
+					addToRelation(currentPhotoid,node.id);
+				}
+				
+				
+				
+				
+
+				var changePhoto = function() {
+					 
+					photoCount = (photoCount + 1) % photos.length;
+					var photo = document.getElementById("picture");
+					currentPhotoid=photos[photoCount].id; 
+					// photo.src = pictures[photoCount];
+					 photo.src = photos[photoCount].path;
+					var caption=document.getElementsByTagName("figcaption");
+				    // setPhotoTags(photos[photoCount].id);
+					    caption[0].innerHTML=photos[photoCount].name+ " made at "+photos[photoCount].date;
+					    clearPhotoTags();
+					    setPhotoTags(currentPhotoid);
+					// $('#picture')[0].src=pictures[photoCount];
+					// console.log(pictures[photoCount]);
+					   
+				} // End of changePhoto
+	
+				
+				 var clearPhotoTags=function(){
+					 // $('#photoTags').html("");	
+					 $('table > tbody').children().remove();
+				 }
+				
+				var addToRelation=function(photoid,tagid){
+					var element={photoid: photoid, tagid: tagid}
+					relation.push(element);
+				}
+				
+				
+				var delFromRelation=function(node){
+					for (var m = 0; m < relation.length; m++) {
+						if ((relation[m].photoid==currentPhotoid) && (relation[m].tagid==node.parentNode.parentNode.id))
+							{relation.splice(m, 1); return;}
+					} 
+					console.log("value= "+node.parentNode.parentNode.firstChild.innerHTML);
+					node.parentNode.parentNode.remove();
+				} // End of delFromRelation
+				 
+				
+				 var addTag=function(node){
+						// var table = document.getElementById("queryList");
+						var tr = document.createElement('tr');
+						//tr.class="tagRow";
+						tr.id=node.id;
+						// ----
+						var td = document.createElement('td');
+						    td.innerHTML=node.value;
+						    tr.appendChild(td);  
+						// ----
+						td = document.createElement('td');
+						button = document.createElement('input');
+						button.type = "button";
+						button.value = "delete";
+						button.setAttribute("onclick", "delFromRelation(this)");
+						// "this.parentNode.parentNode.remove()"
+						// delFromRelation(this,currentPhotoid,node.id)
+						// alert(button.onclick);
+						td.appendChild(button);
+						tr.appendChild(td);
+						 var str=$('table tr')[0].firstChild.html;
+						 var l=$('table tr').length;
+						 // console.log("Number of rows = "+l);
+						 var ch=$('table tr')[l-1].children;
+						 var ln=ch.length;
+						// console.log(ln);
+						 // console.log (ch[0].innerHTML);
+						 insertTag(tr);
+						 // addToRelation(currentPhotoid,node.id);
+					} // End of addSource
+					
+					
+					var insertTag=function(node){
+						// var tableRows= $('table tr');
+						var tableRows= $('#photoTags tr');
+						var name=node.children[0].innerHTML;
+						if(tableRows.length==0) {$('#photoTags').append(node); return; };
+						for (var m = 0; m < tableRows.length; m++) {
+							var tablename= tableRows[m].children[0].innerHTML; //"zzz"; //
+							if (name < tablename) {
+								tableRows[m].before(node);
+								return;
+							}
+							if (name ==tablename) {
+								console.log("name =" + name);
+								alert("The tag with name '" + name + "' already exists");
+								return;
+							} 
+						}
+						tableRows[tableRows.length-1].after(node);
+					} // End of insertTag
+				
+				
+				
+				var findTagButton = function(tagid) {
+				// var	tagButtons = document.getElementById("tagsList").childNodes;
+				 var	tagButtons = document.getElementById("tagsList").children;
+					// var tagButtons = tagsList.children;
+					// var tagButtons=$('ul + li');
+					// var tagButtons=$('#tagsList + li');
+					// console.log("tagButtons.length = " + tagButtons.length);
+					for (var m = 0; m < tagButtons.length; m++) {
+						// console.log("tagButtons[m]= " + tagButtons[m]);
+						// console.log("tagButtons[m].id= " + tagButtons[m].id);
+						// console.log("tagButtons[m].value= " + tagButtons[m].value);
+						// console.log("tagid= " + tagid);
+						if (tagid == tagButtons[m].firstChild.id)
+							return tagButtons[m].firstChild;
+					}
+					return null;
+				} //End of findTagButton
+
+				var setPhotoTags = function(photoid) {
+					// console.log("photoid= " + photoid);
+					for (var m = 0; m < relation.length; m++) {
+						// console.log("relation.photoid= "+relation[m].photoid);
+						// console.log("relation[m].tagid= "+relation[m].tagid);
+						if (photoid == relation[m].photoid) {
+							var button = findTagButton(relation[m].tagid);
+							if (button != null) {
+								// console.log("tagid = "+ button.id);
+								addTag(button);
+							}
+						}
+					}
+
+				} // End of setPhotoTags 
+
+				var savePhotoTags = function() {
+					var tableRows = $('#photoTags tr');
+					var tagids = new Array();
+
+					for (var m = 0; m < tableRows.length; m++)
+						tagids[m] = tableRows[m].id;
+
+					var jsonTagids = arrayToString(tagids);
+
+					$.post('Marking', {
+						"command" : "savephototags",
+						"photoid" : currentPhotoid,
+						"tagids" : jsonTagids
+					}, function(data, status) {
+						onAnswer(data, status);
+						// location.reload(true);
+					});
+
+				} // End of savePhotoTags
+			</script>
+</body>
+</html>
+
+

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script type='text/javascript' src='scriptfiles/jquery-3.3.1.min.js'> </script>
+<script type='text/javascript' src='scriptfiles/general.js'> </script>
+<title>Download photos</title>
+</head>
+<body>
+
+<header>
+<input type="button" value="RETURN TO OPERATIONS MENU" onclick="location.replace('operations.html')">
+<input type="button" value="HELP">
+</header>
+
+<section>
+<h1>OPERATION: <span id="operation"> Downloading selected photos </span></h1>
+
+<p id="waiting"> waiting for completion </p>
+
+
+
+
+ 
+ <h1> The files to download </h1>
+ 
+ <h1 id="empty" hidden=true > IS EMPTY </h1>
+ 
+ <ol id="protocol"> </ol>
+ 
+ <ul id="references" hidden=true>  </ul>
+ 
+ </section>
+ 
+ <script>
+ 		$(document).ready(
+				function($) {
+					$.get('Operations', {
+						command : "protocol"
+					}, function(answer, status) {
+						var answerObject = onAnswer(answer, status);
+						// console.log("answerObject.protocol = "
+						//		+ answerObject.protocol);
+						//console.log("answerObject.protocol.length = "
+						//		+ answerObject.protocol.length);
+						// var protocol=JSON.parse(answerObject.protocol);
+						// var protocol=answerObject.protocol.split(',');
+						var protocol = stringToArray(answerObject.protocol);
+						console.log("protocol.length = "+ protocol.length);
+						$('#waiting').html("");
+						groupDownload(protocol);
+						// showProtocol(protocol);
+					}); // End of get
+				}); // End of ready
+
+		var groupDownload = function(protocol) {
+			if (protocol.length == 0) {
+				$('#empty')[0].hidden = false;
+				return;
+			}
+			var referencesList = document.getElementById('references');
+			var protocolList = document.getElementById('protocol');
+			for (var m = 0; m < protocol.length; m++) {
+				var NLI = document.createElement('li');
+				var LI=document.createElement('li');
+				NLI.innerHTML = protocol[m];
+				referencesList.appendChild(NLI);
+				console.log("protocol[" + m + "]" + protocol[m]);
+			} // End of for
+			var A = document.getElementsByTagName('a');
+			for (var m = 0; m < A.length; m++)
+				{ A[m].click(); 
+				var LI=document.createElement('li');
+				LI.innerHTML = A[m].href;
+				protocolList.appendChild(LI);
+				}
+		} // groupDownload
+	
+		/* this variant does not work !
+		var groupDownload = function(protocol) {
+			if (protocol.length == 0) {
+				$('#empty')[0].hidden = false;
+				return;
+			}
+			var referencesList = document.getElementById('references');
+			var protocolList = document.getElementById('protocol');
+			for (var m = 0; m < protocol.length; m++) {
+				var NLI = document.createElement('li');
+				var LI=document.createElement('li');
+				NLI.innerHTML = protocol[m];
+				referencesList.appendChild(NLI);
+				LI.innerHTML = NLI.firstChild.href;
+				protocolList.appendChild(LI);
+				console.log("protocol[" + m + "]" + protocol[m]);
+				console.log("href[" + m + "] = " + NLI.firstChild.href);
+				
+			} // End of for
+			var A = document.getElementsByTagName('a');
+			for (var m = 0; m < A.length; m++)
+				A[m].click();
+		} // groupDownload
+		*/
+	</script> 
+ 
+</body>
+</html>
