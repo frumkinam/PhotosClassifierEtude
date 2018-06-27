@@ -25,16 +25,19 @@
 <p> <input type="button" value='SEARCHING DELETED PHOTOS IN SOURCES' onclick="sendCommand('searchingDeleted')"> </p>
 <p> <input type="button" value='MARKING PHOTOS' onclick="sendCommand('marking')"> </p>
 <p> <input type="button" value='EDITING TAGS' onclick="location.replace('tags.html')"> </p>
-<p> <input type="button" value='SELECTING PHOTOS' onclick="sendCommand('selecting')"> </p>
+
+<!-- <p> <input type="button" value='SELECTING PHOTOS' onclick="sendCommand('selecting')"> </p>
 <p> <input type="button" value='ASSEMBLING ALL PHOTOS' onclick="sendCommand('assembling')"> </p>
-<p> <input type="button" value='SELECT AND DOWNLOAD' onclick="sendCommand('download')"> </p>  
+ -->
+ <p> <input type="button" value='SELECT AND DOWNLOAD' onclick="sendCommand('download')"> </p>  
     </div>
 
     <div id="right">
-        <p>The total number of photos in all sources is <span id="totalNumber" class="value" > 10000 </span>  </p>
+        <p>The total number of photos in all sources is <span id="totalNumber" class="value" > 0 </span>  </p>
         
-        <p> The number of photos which are probably doubled is <span id="doublesNumber" class="value" > 100 </span>  </p>
+        <p> The number of photos which are probably doubled is <span id="doublesNumber" class="value" > 0 </span>  </p>
     </div>
+
     
 <script>
 
@@ -51,18 +54,14 @@
 
 	
 
+	
 	var sendCommand = function(command) {
-		/* var message = {
-			"action" : command
-		};
-		var literal = {
-			forServer : JSON.stringify(message)
-		}; */
-
-		$.get('Operations',{command: command}, function(answer, status) {
+		$.get('Operations', {
+			command : command
+		}, function(answer, status) {
 			console.log("answer= " + answer);
 			//var answerObject = JSON.parse(answer);
-			var answerObject=onAnswer(answer,status);
+			var answerObject = onAnswer(answer, status);
 			switch (answerObject.command) {
 			/* case "repeat": $('#message').html(answerObject.data); break; */
 			case "refresh":
@@ -72,12 +71,13 @@
 				$('#doublesNumber').html(answerObject.doublesNumber);
 				break;
 			case "newpage":
-				console.log("new page =" + answerObject.data);
 				location.replace(answerObject.newpage);
 				break;
 			} // End of switch
 		});
-	} // End of sendCommand 
+	} // End of sendCommand
+	
+	
 </script> 	
 
 </body>
