@@ -184,10 +184,3 @@ public class SetSources extends HttpServlet {
 } // End of Servlet
 
 
-/*  Old variants
- * String forBrowser="pete,mike,kate";
- 
-// String forBrowser="";
-PrintWriter out = response.getWriter();
-out.write(forBrowser);
-System.out.println("Class = " +  request.getClass());*/
